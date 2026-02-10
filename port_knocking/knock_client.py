@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Starter template for the port knocking client."""
+"""Starter template for the port knocking client.
+
+Expanded with print output and banner grab on --check.
+"""
 
 import argparse
 import socket
@@ -11,9 +14,8 @@ DEFAULT_DELAY = 0.3
 
 
 def send_knock(target, port, delay):
-    """Send a single knock to the target port."""
-    # TODO: Choose UDP or TCP knocks based on your design.
-    # Example TCP knock stub:
+    """Send a single TCP knock to the target port."""
+    print(f"  [*] Knocking port {port}")
     try:
         with socket.create_connection((target, port), timeout=1.0):
             pass
@@ -24,22 +26,32 @@ def send_knock(target, port, delay):
 
 def perform_knock_sequence(target, sequence, delay):
     """Send the full knock sequence."""
+    print(f"[*] Sending knock sequence to {target}: {sequence}")
     for port in sequence:
         send_knock(target, port, delay)
+    print("[+] Knock sequence sent.")
 
 
 def check_protected_port(target, protected_port):
     """Try connecting to the protected port after knocking."""
-    # TODO: Replace with real service connection if needed.
+    print(f"[*] Checking port {protected_port}...")
     try:
-        with socket.create_connection((target, protected_port), timeout=2.0):
-            print(f"[+] Connected to protected port {protected_port}")
+        sock = socket.create_connection((target, protected_port), timeout=3.0)
+        print(f"[+] SUCCESS - port {protected_port} is OPEN")
+        try:
+            sock.settimeout(2.0)
+            banner = sock.recv(1024).decode(errors="replace").strip()
+            if banner:
+                print(f"[+] Banner: {banner[:200]}")
+        except OSError:
+            pass
+        sock.close()
     except OSError:
-        print(f"[-] Could not connect to protected port {protected_port}")
+        print(f"[-] FAILED - port {protected_port} is still closed")
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Port knocking client starter")
+    parser = argparse.ArgumentParser(description="Port knocking client")
     parser.add_argument("--target", required=True, help="Target host or IP")
     parser.add_argument(
         "--sequence",

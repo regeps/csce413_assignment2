@@ -18,6 +18,8 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    volumes:
+      - ./port_scanner:/app/port_scanner
     networks:
       vulnerable_network:
         ipv4_address: 172.20.0.10

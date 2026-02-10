@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY honeypot.py .
+COPY honeypot.py logger.py ./
 
 # Create logs directory
 RUN mkdir -p /app/logs
